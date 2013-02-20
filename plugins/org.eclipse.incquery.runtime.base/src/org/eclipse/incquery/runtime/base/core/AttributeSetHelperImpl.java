@@ -21,18 +21,24 @@ import java.util.Set;
  */
 public class AttributeSetHelperImpl {
 	public static <A> Set<A> closure(Set<A> attributes, Map<Set<A>, Set<A>> dependencies) {
-		Set<A> newClosureSet = new HashSet<A>(attributes);
-		Set<A> closureSet = null;
+		Set<A> closureSet = new HashSet<A>(attributes);
+		Set<A> newSet;
 		
 		do {
-			closureSet = new HashSet<A>(newClosureSet);
-			
-			for (Entry<Set<A>, Set<A>> dependency : dependencies.entrySet()) {
-				if (closureSet.containsAll(dependency.getKey()))
-					newClosureSet.addAll(dependency.getValue());
-			}
-		} while (!closureSet.containsAll(newClosureSet));
+			newSet = closureStep(closureSet, dependencies);
+		} while (!closureSet.containsAll(newSet));
 		
-		return newClosureSet;
+		return closureSet;
+	}
+	
+	private static <A> Set<A> closureStep(Set<A> originalSet, Map<Set<A>, Set<A>> dependencies) {
+		Set<A> newSet = new HashSet<A>(originalSet);
+		
+		for (Entry<Set<A>, Set<A>> dependency : dependencies.entrySet()) {
+			if (originalSet.containsAll(dependency.getKey()))
+				newSet.addAll(dependency.getValue());
+		}
+		
+		return newSet;
 	}
 }
